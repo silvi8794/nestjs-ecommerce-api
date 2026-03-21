@@ -32,8 +32,8 @@ export class User {
     @Column({ type: 'timestamp', nullable: true })
     deletedAt: Date;
 
-    @ManyToOne(() => Role, (role) => role.id, { 
+    @ManyToOne(() => Role, (role) => role.users, { 
         eager: true 
     })
-    role: string
+    role: Role;
 }
