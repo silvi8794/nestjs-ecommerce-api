@@ -22,6 +22,11 @@ export class CreateProductDto {
     @IsOptional()
     description?: string;
 
+    @ApiProperty({ example: 'smartphone-x', required: false })
+    @IsString()
+    @IsOptional()
+    slug?: string;
+
     @ApiProperty({ example: 999.99 })
     @IsNumber()
     @Min(0)
@@ -32,10 +37,15 @@ export class CreateProductDto {
     @Min(0)
     stock: number;
 
-    @ApiProperty({ example: 'Electronics' })
-    @IsString()
+    @ApiProperty({ example: 1 })
+    @IsNumber()
     @IsOptional()
-    category?: string;
+    categoryId?: number;
+
+    @ApiProperty({ example: 1 })
+    @IsNumber()
+    @IsOptional()
+    brandId?: number;
 
     @ApiProperty({ type: [CreateVariantDto], required: false })
     @IsOptional()

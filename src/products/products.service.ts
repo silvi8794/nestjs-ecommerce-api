@@ -14,9 +14,17 @@ export class ProductsService {
   ) {}
 
   async create(createProductDto: CreateProductDto) {
-    const { variants, ...productData } = createProductDto;
+    const { variants, categoryId, brandId, ...productData } = createProductDto;
     
     const product = this.productRepository.create(productData);
+
+    if (categoryId) {
+      product.category = { id: categoryId } as any;
+    }
+
+    if (brandId) {
+      product.brand = { id: brandId } as any;
+    }
 
     if (variants && variants.length > 0) {
       product.variants = variants.map(v => {
@@ -34,14 +42,14 @@ export class ProductsService {
 
   async findAll() {
     return await this.productRepository.find({
-      relations: ['variants', 'variants.color']
+      relations: ['variants', 'variants.color', 'category', 'brand']
     });
   }
 
   async findOne(id: number) {
     const product = await this.productRepository.findOne({
       where: { id },
-      relations: ['variants', 'variants.color']
+      relations: ['variants', 'variants.color', 'category', 'brand']
     });
     if (!product) {
       throw new NotFoundException(`Product with ID ${id} not found`);
@@ -50,9 +58,20 @@ export class ProductsService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
+    const { categoryId, brandId, ...updateData } = updateProductDto;
     const product = await this.findOne(id);
-    const updatedProduct = this.productRepository.merge(product, updateProductDto);
-    return await this.productRepository.save(updatedProduct);
+    
+    this.productRepository.merge(product, updateData);
+    
+    if (categoryId) {
+      product.category = { id: categoryId } as any;
+    }
+
+    if (brandId) {
+      product.brand = { id: brandId } as any;
+    }
+    
+    return await this.productRepository.save(product);
   }
 
   async remove(id: number) {

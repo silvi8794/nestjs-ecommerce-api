@@ -15,7 +15,6 @@ export class ProductVariant {
     id: number;
 
     @Column({ unique: true })
-    @Index()
     sku: string;
 
     @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
