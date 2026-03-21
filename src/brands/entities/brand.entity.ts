@@ -6,10 +6,10 @@ import {
     BeforeInsert, 
     BeforeUpdate 
 } from "typeorm";
-import { ProductVariant } from "../../products/entities/product-variant.entity";
+import { Product } from "../../products/entities/product.entity";
 
-@Entity({ name: 'colors' })
-export class Color {
+@Entity({ name: 'brands' })
+export class Brand {
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -20,10 +20,10 @@ export class Color {
     slug: string;
 
     @Column({ nullable: true })
-    hexCode: string;
+    description: string;
 
-    @OneToMany(() => ProductVariant, (variant) => variant.color)
-    variants: ProductVariant[];
+    @OneToMany(() => Product, (product) => product.brand)
+    products: Product[];
 
     @BeforeInsert()
     @BeforeUpdate()

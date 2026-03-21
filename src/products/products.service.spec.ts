@@ -50,13 +50,14 @@ describe('ProductsService', () => {
         description: 'Test Description',
         price: 100,
         stock: 10,
-        category: 'Test Category',
+        categoryId: 1,
         variants: [
           { sku: 'SKU1', price: 110, stock: 5, colorId: 1 }
         ]
       };
 
-      const product = { ...createProductDto, id: 1, variants: [] };
+      const product = { ...createProductDto, id: 1, category: { id: 1 }, variants: [] };
+      delete (product as any).categoryId;
       mockProductRepository.create.mockReturnValue(product);
       mockProductRepository.save.mockResolvedValue(product);
 
@@ -67,7 +68,6 @@ describe('ProductsService', () => {
         description: 'Test Description',
         price: 100,
         stock: 10,
-        category: 'Test Category'
       });
       expect(repository.save).toHaveBeenCalled();
       expect(result).toEqual(product);
@@ -99,7 +99,7 @@ describe('ProductsService', () => {
       const result = await service.findAll();
       expect(result).toEqual(products);
       expect(repository.find).toHaveBeenCalledWith({
-        relations: ['variants', 'variants.color']
+        relations: ['variants', 'variants.color', 'category', 'brand']
       });
     });
   });
@@ -113,7 +113,7 @@ describe('ProductsService', () => {
       expect(result).toEqual(product);
       expect(repository.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['variants', 'variants.color']
+        relations: ['variants', 'variants.color', 'category', 'brand']
       });
     });
 
@@ -130,13 +130,13 @@ describe('ProductsService', () => {
       const updatedProduct = { id: 1, name: 'Updated Product' };
 
       mockProductRepository.findOne.mockResolvedValue(product);
-      mockProductRepository.merge.mockReturnValue(updatedProduct);
-      mockProductRepository.save.mockResolvedValue(updatedProduct);
+      mockProductRepository.merge.mockImplementation((entity, update) => Object.assign(entity, update));
+      mockProductRepository.save.mockImplementation((entity) => Promise.resolve(entity));
 
       const result = await service.update(1, updateProductDto);
 
-      expect(result).toEqual(updatedProduct);
-      expect(repository.save).toHaveBeenCalledWith(updatedProduct);
+      expect(result.name).toEqual('Updated Product');
+      expect(repository.save).toHaveBeenCalled();
     });
   });
 

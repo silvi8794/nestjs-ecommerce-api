@@ -11,4 +11,9 @@ export class CreateColorDto {
     @IsString()
     @IsOptional()
     hexCode?: string;
+
+    @ApiProperty({ example: 'crimson-red', required: false })
+    @IsString()
+    @IsOptional()
+    slug?: string;
 }
