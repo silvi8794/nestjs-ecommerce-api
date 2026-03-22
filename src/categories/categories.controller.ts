@@ -40,12 +40,12 @@ export class CategoriesController {
     return this.categoriesService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a category by ID' })
+  @Get(':slug')
+  @ApiOperation({ summary: 'Get a category by slug' })
   @ApiResponse({ status: 200, description: 'The category data' })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.categoriesService.findOne(id);
+  findOne(@Param('slug') slug: string) {
+    return this.categoriesService.findOneBySlug(slug);
   }
 
   @Patch(':id')

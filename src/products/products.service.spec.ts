@@ -11,6 +11,16 @@ describe('ProductsService', () => {
   let service: ProductsService;
   let repository: Repository<Product>;
 
+  const mockQueryBuilder = {
+    leftJoinAndSelect: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
+    orderBy: jest.fn().mockReturnThis(),
+    skip: jest.fn().mockReturnThis(),
+    take: jest.fn().mockReturnThis(),
+    getManyAndCount: jest.fn(),
+  };
+
   const mockProductRepository = {
     create: jest.fn(),
     save: jest.fn(),
@@ -18,6 +28,7 @@ describe('ProductsService', () => {
     findOne: jest.fn(),
     merge: jest.fn(),
     softRemove: jest.fn(),
+    createQueryBuilder: jest.fn().mockReturnValue(mockQueryBuilder),
   };
 
   beforeEach(async () => {
@@ -92,15 +103,20 @@ describe('ProductsService', () => {
   });
 
   describe('findAll', () => {
-    it('should return an array of products', async () => {
+    it('should return paginated products', async () => {
       const products = [{ id: 1, name: 'Product 1' }];
-      mockProductRepository.find.mockResolvedValue(products);
+      mockQueryBuilder.getManyAndCount.mockResolvedValue([products, 1]);
 
-      const result = await service.findAll();
-      expect(result).toEqual(products);
-      expect(repository.find).toHaveBeenCalledWith({
-        relations: ['variants', 'variants.color', 'category', 'brand']
+      const result = await service.findAll({});
+      
+      expect(result).toEqual({
+        items: products,
+        total: 1,
+        limit: 10,
+        offset: 0
       });
+      expect(repository.createQueryBuilder).toHaveBeenCalledWith('product');
+      expect(mockQueryBuilder.getManyAndCount).toHaveBeenCalled();
     });
   });
 
