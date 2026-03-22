@@ -29,10 +29,10 @@ export class ColorsController {
     return this.colorsService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a color by ID' })
+  @Get(':slug')
+  @ApiOperation({ summary: 'Get a color by slug' })
   @ApiResponse({ status: 200, description: 'The color data' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.colorsService.findOne(id);
+  findOne(@Param('slug') slug: string) {
+    return this.colorsService.findOneBySlug(slug);
   }
 }

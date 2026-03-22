@@ -7,11 +7,13 @@ import {
   Param, 
   Delete, 
   UseGuards,
-  ParseIntPipe
+  ParseIntPipe,
+  Query
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductFilterDto } from './dto/product-filter.dto';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAccessTokenGuard } from '../auth/guards/jwt-access-token/jwt-access-token.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
@@ -34,18 +36,18 @@ export class ProductsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Get all products' })
+  @ApiOperation({ summary: 'Get all products with filters' })
   @ApiResponse({ status: 200, description: 'List of products' })
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query() filterDto: ProductFilterDto) {
+    return this.productsService.findAll(filterDto);
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a product by ID' })
+  @Get(':slug')
+  @ApiOperation({ summary: 'Get a product by slug' })
   @ApiResponse({ status: 200, description: 'The product data' })
   @ApiResponse({ status: 404, description: 'Product not found' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.productsService.findOne(id);
+  findOne(@Param('slug') slug: string) {
+    return this.productsService.findOneBySlug(slug);
   }
 
   @Patch(':id')

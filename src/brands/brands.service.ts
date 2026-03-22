@@ -22,6 +22,17 @@ export class BrandsService {
     });
   }
 
+  async findOneBySlug(slug: string) {
+    const brand = await this.brandRepository.findOne({
+      where: { slug },
+      relations: ['products']
+    });
+    if (!brand) {
+      throw new NotFoundException(`Brand with slug ${slug} not found`);
+    }
+    return brand;
+  }
+
   async findOne(id: number) {
     const brand = await this.brandRepository.findOne({
       where: { id },
