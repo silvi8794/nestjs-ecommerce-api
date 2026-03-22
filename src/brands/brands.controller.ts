@@ -39,12 +39,12 @@ export class BrandsController {
     return this.brandsService.findAll();
   }
 
-  @Get(':id')
-  @ApiOperation({ summary: 'Get a brand by ID' })
+  @Get(':slug')
+  @ApiOperation({ summary: 'Get a brand by slug' })
   @ApiResponse({ status: 200, description: 'The brand data' })
   @ApiResponse({ status: 404, description: 'Brand not found' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.brandsService.findOne(id);
+  findOne(@Param('slug') slug: string) {
+    return this.brandsService.findOneBySlug(slug);
   }
 
   @Patch(':id')

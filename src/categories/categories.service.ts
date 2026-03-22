@@ -23,6 +23,17 @@ export class CategoriesService {
     });
   }
 
+  async findOneBySlug(slug: string) {
+    const category = await this.categoryRepository.findOne({
+      where: { slug },
+      relations: ['products']
+    });
+    if (!category) {
+      throw new NotFoundException(`Category with slug ${slug} not found`);
+    }
+    return category;
+  }
+
   async findOne(id: number) {
     const category = await this.categoryRepository.findOne({
       where: { id },

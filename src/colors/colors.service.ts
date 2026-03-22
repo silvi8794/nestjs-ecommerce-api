@@ -20,6 +20,14 @@ export class ColorsService {
     return await this.colorRepository.find();
   }
 
+  async findOneBySlug(slug: string) {
+    const color = await this.colorRepository.findOneBy({ slug });
+    if (!color) {
+      throw new NotFoundException(`Color with slug ${slug} not found`);
+    }
+    return color;
+  }
+
   async findOne(id: number) {
     const color = await this.colorRepository.findOneBy({ id });
     if (!color) {

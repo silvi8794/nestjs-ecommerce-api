@@ -3,6 +3,7 @@ import { ProductsController } from './products.controller';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { ProductFilterDto } from './dto/product-filter.dto';
 import { JwtAccessTokenGuard } from '../auth/guards/jwt-access-token/jwt-access-token.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { JwtService } from '@nestjs/jwt';
@@ -15,7 +16,7 @@ describe('ProductsController', () => {
   const mockProductsService = {
     create: jest.fn(),
     findAll: jest.fn(),
-    findOne: jest.fn(),
+    findOneBySlug: jest.fn(),
     update: jest.fn(),
     remove: jest.fn(),
   };
@@ -65,25 +66,26 @@ describe('ProductsController', () => {
 
   describe('findAll', () => {
     it('should call productsService.findAll', async () => {
-      const products = [{ id: 1, name: 'Product 1' }];
-      mockProductsService.findAll.mockResolvedValue(products);
+      const filterDto: ProductFilterDto = {};
+      const resultData = { items: [{ id: 1, name: 'Product 1' }], total: 1, limit: 10, offset: 0 };
+      mockProductsService.findAll.mockResolvedValue(resultData);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll(filterDto);
 
-      expect(result).toEqual(products);
-      expect(service.findAll).toHaveBeenCalled();
+      expect(result).toEqual(resultData);
+      expect(service.findAll).toHaveBeenCalledWith(filterDto);
     });
   });
 
   describe('findOne', () => {
-    it('should call productsService.findOne', async () => {
-      const product = { id: 1, name: 'Product 1' };
-      mockProductsService.findOne.mockResolvedValue(product);
+    it('should call productsService.findOneBySlug', async () => {
+      const product = { id: 1, name: 'Product 1', slug: 'product-1' };
+      mockProductsService.findOneBySlug.mockResolvedValue(product);
 
-      const result = await controller.findOne(1);
+      const result = await controller.findOne('product-1');
 
       expect(result).toEqual(product);
-      expect(service.findOne).toHaveBeenCalledWith(1);
+      expect(service.findOneBySlug).toHaveBeenCalledWith('product-1');
     });
   });
 
