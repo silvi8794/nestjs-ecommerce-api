@@ -3,6 +3,7 @@ import { PassportStrategy } from "@nestjs/passport";
 import { ExtractJwt, Strategy } from "passport-jwt";
 
 interface JwtPayload {
+    id: number;
     email: string;
     role: string;
 }
@@ -18,8 +19,7 @@ export class JwtAccessTokenStrategy extends PassportStrategy(Strategy) {
     }
 
     async validate(payload: JwtPayload){
-        console.log('payload', payload);
-        return { email: payload.email, role: payload.role };
+        return { id: payload.id, email: payload.email, role: payload.role };
     }
 
 }

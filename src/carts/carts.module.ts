@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MulterModule } from '@nestjs/platform-express';
 import { CartsService } from './carts.service';
 import { CartsCleanupService } from './carts-cleanup.service';
 import { CartsController } from './carts.controller';
@@ -11,6 +12,7 @@ import { AiModule } from '../ai/ai.module';
 @Module({
   imports: [
     TypeOrmModule.forFeature([Cart, CartItem, ProductVariant]),
+    MulterModule.register(),
     AiModule
   ],
   controllers: [CartsController],
