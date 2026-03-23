@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
+import { CacheModule } from '@nestjs/cache-manager';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -15,6 +16,7 @@ import { CartsModule } from './carts/carts.module';
 
 @Module({
   imports: [
+    CacheModule.register({ isGlobal: true }),
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
