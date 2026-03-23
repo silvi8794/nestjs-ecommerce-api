@@ -1,52 +1,66 @@
-# Smart E-Commerce API 
+# Smart E-Commerce API
 
-Una robusta API RESTful construida con **NestJS**, diseñada para manejar la lógica compleja de un comercio electrónico moderno. Este proyecto no es un e-commerce tradicional, ya que incluye características avanzadas de control de stock y un sistema de auto-aprobación de pagos potenciado por Inteligencia Artificial.
+> 🇪🇸 [Versión en Español disponible aquí](./README.es.md)
 
-## Características Principales
+A robust RESTful API built with **NestJS**, designed to handle the complex logic of a modern e-commerce platform. This is not a traditional e-commerce project — it includes advanced stock control features and an AI-powered payment auto-approval system.
 
-- **Autenticación y Autorización**: Sistema seguro basado en JWT, contraseñas encriptadas (Bcrypt) y guardias de roles personalizados (Admin/User).
-- **Catálogo Jerárquico**: Gestión completa de Categorías, Marcas, Productos y Variantes de producto. Permite crear un producto base y asociarle colores, talles, precios y stock independiente a cada variante.
-- **Carrito de Compras y Pagos**:
-  - Reserva dinámica de inventario.
-  - Sincronización automática de stock: Al descontar o devolver una variante, el producto padre refleja el cambio instantáneamente.
-  - Tipos de pago soportados: Efectivo (CASH) y Transferencia Bancaria (TRANSFER).
-- **🤖 Cajero de Inteligencia Artificial (Google Gemini)**: 
-  - Para los pagos por transferencia, el usuario sube una captura del recibo.
-  - La API se conecta al modelo `gemini-2.5-flash` para hacer un análisis de imagen (OCR Inteligente).
-  - Extrae monto, banco y fecha. Si el monto cubre el carrito, la IA **aprueba automáticamente la orden de compra**, blindada contra intentos de re-procesamiento.
-- **Cron Jobs**: Tarea programada (Schedule) que corre en segundo plano limpiando carritos "abandonados" o bloqueados en fase de pago por más de 24 horas, devolviendo automáticamente el stock a la tienda.
+## Key Features
 
-## Tecnologías Utilizadas
+- **Authentication & Authorization**: Secure JWT-based system with encrypted passwords (Bcrypt) and custom role guards (Admin / User).
+- **Hierarchical Catalog**: Full management of Categories, Brands, Products, and Product Variants. Create a base product and associate independent colors, sizes, prices, and stock to each variant.
+- **Shopping Cart & Payments**:
+  - Dynamic inventory reservation.
+  - Automatic stock synchronization: when a variant is deducted or returned, the parent product reflects the change instantly.
+  - Supported payment methods: Cash (CASH) and Bank Transfer (TRANSFER).
+- ** AI-Powered Cashier (Google Gemini)**:
+  - For transfer payments, the user uploads a screenshot of the receipt.
+  - The API connects to the `gemini-2.5-flash` model to perform intelligent image analysis (Smart OCR).
+  - It extracts the amount, bank, and date. If the amount covers the cart total, the AI **automatically approves the purchase order**, protected against reprocessing attempts.
+- **Async Event System**: After AI approval, an `order.approved` event is emitted asynchronously. The `NotificationsService` captures it in the background to simulate sending an invoice email — without blocking the user's response.
+- **Cron Jobs**: A scheduled background task cleans up "abandoned" carts or carts stuck in payment phase for more than 24 hours, automatically returning stock to the store.
 
-- **Framework**: NodeJS + NestJS
-- **Lenguaje**: TypeScript
-- **Base de Datos**: MariaDB / MySQL
-- **ORM**: TypeORM
-- **Inteligencia Artificial**: `@google/generative-ai`
-- **Seguridad**: Passport, JWT, Bcrypt
-- **Documentación**: Swagger OpenAPI
+## Tech Stack
 
-## Instalación y Despliegue
+| Layer | Technology |
+|---|---|
+| Framework | Node.js + NestJS |
+| Language | TypeScript |
+| Database | MariaDB / MySQL |
+| ORM | TypeORM |
+| AI | `@google/generative-ai` (Gemini) |
+| Security | Passport, JWT, Bcrypt |
+| Events | `@nestjs/event-emitter` |
+| Docs | Swagger / OpenAPI |
 
-1. Clona el repositorio:
+## Installation & Setup
+
+1. Clone the repository:
    ```bash
    git clone https://github.com/silvi8794/nestjs-ecommerce-api.git
    cd nestjs-ecommerce-api
    ```
 
-2. Instala las dependencias:
+2. Install dependencies:
    ```bash
    npm install
    ```
 
-3. Configura tus variables de entorno creando un archivo `.env` en la raíz (basado en `.env.example`). Asegúrate de incluir tu `GEMINI_API_KEY`.
+3. Configure your environment variables by creating a `.env` file at the root (based on `.env.example`). Make sure to include your `GEMINI_API_KEY`.
 
-4. Inicia la aplicación en modo desarrollo:
+4. Start the application in development mode:
    ```bash
    npm run start:dev
    ```
 
-5. (Opcional) Explora la documentación interactiva provista por Swagger ingresando a `http://localhost:3000/api` una vez que el servidor esté activo.
+5. *(Optional)* Explore the interactive Swagger docs at `http://localhost:3000/api` once the server is running.
+
+## API Flow — Transfer Payment
+
+```
+POST /carts/add              → Add items to cart
+POST /carts/checkout         → Confirm order (paymentMethod: "TRANSFER")
+POST /carts/upload-receipt/:id → Upload receipt → AI analyzes → auto-approves if amount matches
+```
 
 ---
-*Este proyecto fue desarrollado como parte de un Portfolio Backend para demostrar buenas prácticas de arquitectura de software, patrones de diseño y escalabilidad en Node.js.*
+*This project was developed as part of a Backend Portfolio to demonstrate software architecture best practices, design patterns, and scalability in Node.js.*
