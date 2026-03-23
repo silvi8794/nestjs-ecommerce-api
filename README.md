@@ -1,8 +1,8 @@
-# Smart E-Commerce API 🛒🤖
+# Smart E-Commerce API 
 
 Una robusta API RESTful construida con **NestJS**, diseñada para manejar la lógica compleja de un comercio electrónico moderno. Este proyecto no es un e-commerce tradicional, ya que incluye características avanzadas de control de stock y un sistema de auto-aprobación de pagos potenciado por Inteligencia Artificial.
 
-## 🌟 Características Principales
+## Características Principales
 
 - **Autenticación y Autorización**: Sistema seguro basado en JWT, contraseñas encriptadas (Bcrypt) y guardias de roles personalizados (Admin/User).
 - **Catálogo Jerárquico**: Gestión completa de Categorías, Marcas, Productos y Variantes de producto. Permite crear un producto base y asociarle colores, talles, precios y stock independiente a cada variante.
@@ -16,7 +16,7 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
   - Extrae monto, banco y fecha. Si el monto cubre el carrito, la IA **aprueba automáticamente la orden de compra**, blindada contra intentos de re-procesamiento.
 - **Cron Jobs**: Tarea programada (Schedule) que corre en segundo plano limpiando carritos "abandonados" o bloqueados en fase de pago por más de 24 horas, devolviendo automáticamente el stock a la tienda.
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 - **Framework**: NodeJS + NestJS
 - **Lenguaje**: TypeScript
@@ -26,7 +26,7 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
 - **Seguridad**: Passport, JWT, Bcrypt
 - **Documentación**: Swagger OpenAPI
 
-## 🚀 Instalación y Despliegue
+## Instalación y Despliegue
 
 1. Clona el repositorio:
    ```bash
