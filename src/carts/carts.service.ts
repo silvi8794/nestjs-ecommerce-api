@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import { Cart, CartStatus, PaymentMethod, DeliveryMethod } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { ProductVariant } from '../products/entities/product-variant.entity';
@@ -16,6 +17,7 @@ export class CartsService {
     private readonly cartItemRepository: Repository<CartItem>,
     @InjectRepository(ProductVariant)
     private readonly variantRepository: Repository<ProductVariant>,
+    private readonly eventEmitter: EventEmitter2,
   ) { }
 
   async findOrCreateCart(user: User): Promise<Cart> {
@@ -176,7 +178,7 @@ export class CartsService {
     return cart;
   }
 
-  async updateAiAnalysis(id: number, analysis: any) {
+  async updateAiAnalysis(id: number, analysis: any, userId: number) {
     const cart = await this.cartRepository.findOne({ where: { id } });
     if (!cart) throw new NotFoundException('Carrito no encontrado');
 
@@ -187,12 +189,23 @@ export class CartsService {
 
     cart.aiAnalysis = analysis;
 
+    let approvedByAi = false;
     // Auto-Aprobación Inteligente mediante IA
     if (analysis && analysis.amount && Number(analysis.amount) >= Number(cart.totalAmount)) {
       cart.status = CartStatus.READY_TO_PICK;
+      approvedByAi = true;
     }
 
     await this.cartRepository.save(cart);
+
+    if (approvedByAi && userId) {
+      this.eventEmitter.emit('order.approved', { 
+        cartId: cart.id, 
+        userId,
+        amount: cart.totalAmount
+      });
+    }
+
     return cart;
   }
 

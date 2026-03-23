@@ -7,7 +7,8 @@ import {
   Delete,
   Param,
   ParseIntPipe,
-  Patch
+  Patch,
+  BadRequestException
 } from '@nestjs/common';
 import { CartsService } from './carts.service';
 import { JwtAccessTokenGuard } from '../auth/guards/jwt-access-token/jwt-access-token.guard';
@@ -82,11 +83,16 @@ export class CartsController {
       },
   })
   async uploadReceipt(
+    @ActiveUser() user,
     @Param('id', ParseIntPipe) cartId: number,
     @UploadedFile() file: Express.Multer.File
   ) {
+    if (!file) {
+      throw new BadRequestException('Debe adjuntar una imagen del comprobante válido');
+    }
+
     const analysis = await this.aiService.analyzeReceipt(file.buffer, file.mimetype);
-    await this.cartsService.updateAiAnalysis(cartId, analysis);
+    await this.cartsService.updateAiAnalysis(cartId, analysis, user.id);
     
     return {
       message: 'Comprobante analizado y guardado con éxito',
