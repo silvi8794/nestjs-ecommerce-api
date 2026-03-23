@@ -1,8 +1,8 @@
-import { 
-    Column, 
-    Entity, 
-    PrimaryGeneratedColumn, 
-    ManyToOne, 
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    ManyToOne,
     JoinColumn,
     Index
 } from "typeorm";
@@ -24,7 +24,7 @@ export class ProductVariant {
     stock: number;
 
     @Column({ nullable: true })
-    size: string; // e.g. "S", "M", "L", "42", etc.
+    size: string;
 
     @ManyToOne(() => Product, (product) => product.variants, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'productId' })

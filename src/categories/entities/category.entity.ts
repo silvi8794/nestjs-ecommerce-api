@@ -1,10 +1,10 @@
-import { 
-    Column, 
-    Entity, 
-    PrimaryGeneratedColumn, 
-    OneToMany, 
-    BeforeInsert, 
-    BeforeUpdate 
+import {
+    Column,
+    Entity,
+    PrimaryGeneratedColumn,
+    OneToMany,
+    BeforeInsert,
+    BeforeUpdate
 } from "typeorm";
 import { Product } from "../../products/entities/product.entity";
 
@@ -28,14 +28,14 @@ export class Category {
     @BeforeInsert()
     @BeforeUpdate()
     generateSlug() {
-      this.slug = this.name
-        .toLowerCase()
-        .normalize('NFD') // Normalizamos para quitar acentos
-        .replace(/[\u0300-\u036f]/g, '')
-        .replace(/\s+/g, '-') // Espacios por -
-        .replace(/[^\w-]+/g, '') // Quitamos caracteres especiales
-        .replace(/--+/g, '-') // Quitamos -- extras
-        .replace(/^-+/, '') // Quitamos - al inicio
-        .replace(/-+$/, ''); // Quitamos - al final
+        this.slug = this.name
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/[^\w-]+/g, '')
+            .replace(/--+/g, '-')
+            .replace(/^-+/, '')
+            .replace(/-+$/, '');
     }
 }
