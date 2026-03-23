@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CacheModule } from '@nestjs/cache-manager';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -13,9 +14,11 @@ import { ColorsModule } from './colors/colors.module';
 import { CategoriesModule } from './categories/categories.module';
 import { BrandsModule } from './brands/brands.module';
 import { CartsModule } from './carts/carts.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
+    EventEmitterModule.forRoot(),
     CacheModule.register({ isGlobal: true }),
     ScheduleModule.forRoot(),
     ConfigModule.forRoot({
@@ -45,6 +48,7 @@ import { CartsModule } from './carts/carts.module';
     CategoriesModule,
     BrandsModule,
     CartsModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
