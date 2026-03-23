@@ -12,11 +12,11 @@ export class ProductsService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
-  ) {}
+  ) { }
 
   async create(createProductDto: CreateProductDto) {
     const { variants, categoryId, brandId, ...productData } = createProductDto;
-    
+
     const product = this.productRepository.create(productData);
 
     if (categoryId) {
@@ -42,27 +42,26 @@ export class ProductsService {
   }
 
   async findAll(filterDto: ProductFilterDto) {
-    const { 
-      search, 
-      category, 
-      brand, 
+    const {
+      search,
+      category,
+      brand,
       colors,
-      minPrice, 
-      maxPrice, 
+      minPrice,
+      maxPrice,
       isActive,
       limit = 10,
       offset = 0,
-      sort = 'createdAt', 
+      sort = 'createdAt',
       order = 'DESC'
     } = filterDto;
-    
+
     const queryBuilder = this.productRepository.createQueryBuilder('product')
       .leftJoinAndSelect('product.variants', 'variant')
       .leftJoinAndSelect('variant.color', 'color')
       .leftJoinAndSelect('product.category', 'category')
       .leftJoinAndSelect('product.brand', 'brand');
 
-    // Filtro de búsqueda (Nombre o Descripción)
     if (search) {
       queryBuilder.andWhere(
         new Brackets((qb) => {
@@ -72,7 +71,6 @@ export class ProductsService {
       );
     }
 
-    // Filtros por Slugs
     if (category) {
       queryBuilder.andWhere('category.slug = :category', { category });
     }
@@ -86,7 +84,6 @@ export class ProductsService {
       queryBuilder.andWhere('color.slug IN (:...colorSlugs)', { colorSlugs });
     }
 
-    // Filtros de Precio
     if (minPrice !== undefined) {
       queryBuilder.andWhere('product.price >= :minPrice', { minPrice });
     }
@@ -95,12 +92,10 @@ export class ProductsService {
       queryBuilder.andWhere('product.price <= :maxPrice', { maxPrice });
     }
 
-    // Estado Activo
     if (isActive !== undefined) {
       queryBuilder.andWhere('product.isActive = :isActive', { isActive });
     }
 
-    // Orden y Paginación
     queryBuilder
       .orderBy(`product.${sort}`, order)
       .skip(offset)
@@ -141,9 +136,9 @@ export class ProductsService {
   async update(id: number, updateProductDto: UpdateProductDto) {
     const { categoryId, brandId, ...updateData } = updateProductDto;
     const product = await this.findOne(id);
-    
+
     this.productRepository.merge(product, updateData);
-    
+
     if (categoryId) {
       product.category = { id: categoryId } as any;
     }
@@ -151,7 +146,7 @@ export class ProductsService {
     if (brandId) {
       product.brand = { id: brandId } as any;
     }
-    
+
     return await this.productRepository.save(product);
   }
 
