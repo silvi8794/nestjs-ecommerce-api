@@ -10,18 +10,19 @@ import { ProductsModule } from './products/products.module';
 import { ColorsModule } from './colors/colors.module';
 import { CategoriesModule } from './categories/categories.module';
 import { BrandsModule } from './brands/brands.module';
+import { CartsModule } from './carts/carts.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true, // Hace que las configuraciones estén disponibles globalmente
+      isGlobal: true,
     }),
 
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule], // Importa el ConfigModule para acceder a las variables de entorno
+      imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
         type: 'mariadb',
-        host: configService.get<string>('DATABASE_HOST', 'localhost'), // Valores predeterminados
+        host: configService.get<string>('DATABASE_HOST', 'localhost'),
         port: configService.get<number>('DATABASE_PORT', 3307),
         username: configService.get<string>('DATABASE_USER', 'root'),
         password: configService.get<string>('DATABASE_PASSWORD', 'rootpassword'),
@@ -30,7 +31,7 @@ import { BrandsModule } from './brands/brands.module';
         synchronize: true,
         autoLoadEntities: true,
       }),
-      inject: [ConfigService], // Inyecta ConfigService para acceder a las variables
+      inject: [ConfigService],
     }),
     UsersModule,
     RoleModule,
@@ -39,6 +40,7 @@ import { BrandsModule } from './brands/brands.module';
     ColorsModule,
     CategoriesModule,
     BrandsModule,
+    CartsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
