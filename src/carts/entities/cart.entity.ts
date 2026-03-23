@@ -21,7 +21,7 @@ export enum CartStatus {
 
 export enum DeliveryMethod {
     PICKUP = 'PICKUP',
-    SHIPPING = 'SHIPPING' // Se habilitará más adelante
+    SHIPPING = 'SHIPPING' // se habilitará más adelante
 }
 
 export enum PaymentMethod {
