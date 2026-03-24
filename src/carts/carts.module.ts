@@ -8,12 +8,14 @@ import { Cart } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
 import { ProductVariant } from '../products/entities/product-variant.entity';
 import { AiModule } from '../ai/ai.module';
+import { PaymentsModule } from '../payments/payments.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Cart, CartItem, ProductVariant]),
     MulterModule.register(),
-    AiModule
+    AiModule,
+    PaymentsModule
   ],
   controllers: [CartsController],
   providers: [CartsService, CartsCleanupService],
