@@ -17,6 +17,7 @@ A robust RESTful API built with **NestJS**, designed to handle the complex logic
   - The API connects to the `gemini-2.5-flash` model to perform intelligent image analysis (Smart OCR).
   - It extracts the amount, bank, and date. If the amount covers the cart total, the AI **automatically approves the purchase order**, protected against reprocessing attempts.
 - **Async Event System**: After AI approval, an `order.approved` event is emitted asynchronously. The `NotificationsService` captures it in the background to simulate sending an invoice email — without blocking the user's response.
+- **🔔 Real-Time WebSocket Notifications**: A `@WebSocketGateway` pushes an `order-approved` event instantly to all connected admin clients the moment a payment is auto-approved. No more refreshing.
 - **Cron Jobs**: A scheduled background task cleans up "abandoned" carts or carts stuck in payment phase for more than 24 hours, automatically returning stock to the store.
 
 ## Tech Stack
@@ -30,6 +31,7 @@ A robust RESTful API built with **NestJS**, designed to handle the complex logic
 | AI | `@google/generative-ai` (Gemini) |
 | Security | Passport, JWT, Bcrypt |
 | Events | `@nestjs/event-emitter` |
+| WebSockets | `@nestjs/websockets` + `socket.io` |
 | Docs | Swagger / OpenAPI |
 
 ## Installation & Setup
