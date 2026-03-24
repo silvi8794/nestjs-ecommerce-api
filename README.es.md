@@ -17,6 +17,7 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
   - La API se conecta al modelo `gemini-2.5-flash` para hacer un análisis de imagen (OCR Inteligente).
   - Extrae monto, banco y fecha. Si el monto cubre el carrito, la IA **aprueba automáticamente la orden de compra**, blindada contra intentos de re-procesamiento.
 - **Sistema de Eventos Asíncronos**: Tras la aprobación por IA, se emite el evento `order.approved` de forma asíncrona. El `NotificationsService` lo captura en segundo plano para simular el envío de un email con factura, sin bloquear la respuesta al usuario.
+- **Notificaciones en Tiempo Real (WebSockets)**: Un `@WebSocketGateway` hace "push" del evento `order-approved` a todos los clientes admin conectados en el instante en que un pago es auto-aprobado. Sin necesidad de recargar la página.
 - **Cron Jobs**: Tarea programada que corre en segundo plano limpiando carritos "abandonados" o bloqueados en fase de pago por más de 24 horas, devolviendo automáticamente el stock a la tienda.
 
 ## Tecnologías Utilizadas
@@ -30,6 +31,7 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
 | Inteligencia Artificial | `@google/generative-ai` (Gemini) |
 | Seguridad | Passport, JWT, Bcrypt |
 | Eventos | `@nestjs/event-emitter` |
+| WebSockets | `@nestjs/websockets` + `socket.io` |
 | Documentación | Swagger / OpenAPI |
 
 ## Instalación y Despliegue
