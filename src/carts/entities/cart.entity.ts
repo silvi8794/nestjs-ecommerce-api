@@ -13,6 +13,7 @@ import { CartItem } from './cart-item.entity';
 export enum CartStatus {
     ACTIVE = 'ACTIVE',
     PAUSED = 'PAUSED',
+    PENDING_PAYMENT = 'PENDING_PAYMENT',
     PENDING_APPROVAL = 'PENDING_APPROVAL',
     READY_TO_PICK = 'READY_TO_PICK',
     COMPLETED = 'COMPLETED',
@@ -27,6 +28,7 @@ export enum DeliveryMethod {
 export enum PaymentMethod {
     CASH = 'CASH',
     TRANSFER = 'TRANSFER',
+    MERCADO_PAGO = 'MERCADO_PAGO',
     NONE = 'NONE'
 }
 
