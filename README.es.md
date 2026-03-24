@@ -11,7 +11,8 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
 - **Carrito de Compras y Pagos**:
   - Reserva dinámica de inventario.
   - Sincronización automática de stock: al descontar o devolver una variante, el producto padre refleja el cambio instantáneamente.
-  - Tipos de pago soportados: Efectivo (CASH) y Transferencia Bancaria (TRANSFER).
+  - Tipos de pago soportados: Efectivo (CASH), Transferencia Bancaria (TRANSFER) y **Mercado Pago (MERCADO_PAGO)**.
+- **Integración con Mercado Pago**: Flujo de checkout completo con actualizaciones automáticas de estado mediante Webhooks. Crea preferencias de pago y procesa notificaciones (IPN) para aprobar órdenes automáticamente.
 - **Cajero de Inteligencia Artificial (Google Gemini)**:
   - Para los pagos por transferencia, el usuario sube una captura del recibo.
   - La API se conecta al modelo `gemini-2.5-flash` para hacer un análisis de imagen (OCR Inteligente).
@@ -32,6 +33,7 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
 | Seguridad | Passport, JWT, Bcrypt |
 | Eventos | `@nestjs/event-emitter` |
 | WebSockets | `@nestjs/websockets` + `socket.io` |
+| Pagos | `mercadopago` SDK |
 | Documentación | Swagger / OpenAPI |
 
 ## Instalación y Despliegue
@@ -47,7 +49,11 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
    npm install
    ```
 
-3. Configurá tus variables de entorno creando un archivo `.env` en la raíz (basado en `.env.example`). Asegurate de incluir tu `GEMINI_API_KEY`.
+3. Configurá tus variables de entorno creando un archivo `.env` en la raíz (basado en `.env.example`).
+   - `GEMINI_API_KEY`: Requerido para el análisis de tickets de transferencia.
+   - `MP_ACCESS_TOKEN`, `MP_PUBLIC_KEY`: Credenciales de Mercado Pago.
+   - `FRONTEND_URL`: URL de tu frontend para redirecciones post-pago.
+   - `MP_WEBHOOK_URL`: URL pública (ngrok o servidor) para recibir notificaciones de Mercado Pago.
 
 4. Iniciá la aplicación en modo desarrollo:
    ```bash
@@ -56,12 +62,21 @@ Una robusta API RESTful construida con **NestJS**, diseñada para manejar la ló
 
 5. *(Opcional)* Explorá la documentación interactiva de Swagger en `http://localhost:3000/api` una vez que el servidor esté activo.
 
-## Flujo de API — Pago por Transferencia
+## Flujo de API — Pagos
 
+### Pago por Transferencia
 ```
 POST /carts/add                → Agregar productos al carrito
 POST /carts/checkout           → Confirmar pedido (paymentMethod: "TRANSFER")
 POST /carts/upload-receipt/:id → Subir comprobante → IA analiza → auto-aprueba si el monto coincide
+```
+
+### Pago por Mercado Pago
+```
+POST /carts/add                → Agregar productos al carrito
+POST /carts/checkout           → Confirmar pedido (paymentMethod: "MERCADO_PAGO") → devuelve paymentUrl
+REDIRECCIÓN a Mercado Pago     → El usuario realiza el pago
+POST /payments/webhook         → Webhook notifica el estado → auto-aprueba si es "approved"
 ```
 
 ---
