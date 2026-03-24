@@ -15,6 +15,7 @@ import { CategoriesModule } from './categories/categories.module';
 import { BrandsModule } from './brands/brands.module';
 import { CartsModule } from './carts/carts.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { PaymentsModule } from './payments/payments.module';
 
 @Module({
   imports: [
@@ -49,6 +50,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     BrandsModule,
     CartsModule,
     NotificationsModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

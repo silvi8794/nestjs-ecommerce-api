@@ -1,9 +1,10 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { Cart, CartStatus, PaymentMethod, DeliveryMethod } from './entities/cart.entity';
 import { CartItem } from './entities/cart-item.entity';
+import { PaymentsService } from '../payments/payments.service';
 import { ProductVariant } from '../products/entities/product-variant.entity';
 import { Product } from '../products/entities/product.entity';
 import { User } from '../users/entities/user.entity';
@@ -18,6 +19,7 @@ export class CartsService {
     @InjectRepository(ProductVariant)
     private readonly variantRepository: Repository<ProductVariant>,
     private readonly eventEmitter: EventEmitter2,
+    private readonly paymentsService: PaymentsService,
   ) { }
 
   async findOrCreateCart(user: User): Promise<Cart> {
@@ -96,7 +98,7 @@ export class CartsService {
     }
 
     for (const item of cart.items) {
-      const variant = await this.variantRepository.findOne({ 
+      const variant = await this.variantRepository.findOne({
         where: { id: item.productVariant.id },
         relations: ['product']
       });
@@ -117,14 +119,18 @@ export class CartsService {
     cart.receiptUrl = options.receiptUrl || null;
 
     //estados según pago
+    let paymentUrl = null;
     if (options.paymentMethod === PaymentMethod.TRANSFER) {
       cart.status = CartStatus.PENDING_APPROVAL;
     } else if (options.paymentMethod === PaymentMethod.CASH) {
       cart.status = CartStatus.READY_TO_PICK;
+    } else if (options.paymentMethod === PaymentMethod.MERCADO_PAGO) {
+      cart.status = CartStatus.PENDING_PAYMENT;
+      paymentUrl = await this.paymentsService.createPreference(cart);
     }
 
     await this.cartRepository.save(cart);
-    return cart;
+    return { ...cart, paymentUrl };
   }
 
   //gestión de pedidos
@@ -158,9 +164,9 @@ export class CartsService {
     if (!cart) throw new NotFoundException('Pedido no encontrado');
 
     for (const item of cart.items) {
-      const variant = await this.variantRepository.findOne({ 
-        where: { id: item.productVariant.id }, 
-        relations: ['product'] 
+      const variant = await this.variantRepository.findOne({
+        where: { id: item.productVariant.id },
+        relations: ['product']
       });
       if (variant) {
         variant.stock += item.quantity;
@@ -182,7 +188,7 @@ export class CartsService {
     const cart = await this.cartRepository.findOne({ where: { id } });
     if (!cart) throw new NotFoundException('Carrito no encontrado');
 
-    // Bloquear si el carrito ya no está pendiente
+    // Bloquea si el carrito ya no está pendiente
     if ([CartStatus.READY_TO_PICK, CartStatus.COMPLETED, CartStatus.CANCELLED].includes(cart.status)) {
       throw new BadRequestException('Este carrito ya fue procesado y no admite más comprobantes.');
     }
@@ -199,8 +205,8 @@ export class CartsService {
     await this.cartRepository.save(cart);
 
     if (approvedByAi && userId) {
-      this.eventEmitter.emit('order.approved', { 
-        cartId: cart.id, 
+      this.eventEmitter.emit('order.approved', {
+        cartId: cart.id,
         userId,
         amount: cart.totalAmount
       });
@@ -221,5 +227,29 @@ export class CartsService {
     this.calculateTotal(cart);
     await this.cartRepository.save(cart);
     return cart;
+  }
+
+  @OnEvent('payment.updated')
+  async handlePaymentUpdated(payload: { cartId: number, status: string, paymentId: string, details: any }) {
+    const cart = await this.cartRepository.findOne({
+      where: { id: payload.cartId },
+      relations: ['user']
+    });
+    if (!cart) return;
+
+    console.log(`Processing payment update for cart ${cart.id}: ${payload.status}`);
+
+    if (payload.status === 'approved') {
+      cart.status = CartStatus.READY_TO_PICK;
+      await this.cartRepository.save(cart);
+
+      this.eventEmitter.emit('order.approved', {
+        cartId: cart.id,
+        userId: cart.user?.id,
+        amount: cart.totalAmount
+      });
+    } else if (['rejected', 'cancelled', 'refunded'].includes(payload.status)) {
+      await this.rejectOrder(cart.id);
+    }
   }
 }
